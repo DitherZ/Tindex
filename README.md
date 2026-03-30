@@ -1,4 +1,4 @@
-# Tindex v2
+[![Tindex](https://see.fontimg.com/api/rf5/woqxz/Njg2Zjc5ZjkzNjUwNGM4Nzk1NzdhNzM5ZTA3YzRmNjEudHRm/VElOREVY/nextf-games-bold-italic.png?r=fs&h=83&w=1500&fg=FFF5F5&bg=FFFFFF&tb=1&s=55)](https://www.fontspace.com/category/futuristic)
 
 > **Modernized fork of [NEOIR/Tindex](https://github.com/NEOIR/Tindex)** — Stream media from Telegram chats via web browser and VLC player.
 
