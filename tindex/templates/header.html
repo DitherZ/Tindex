@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            surface: { 1: '#0d0d0d', 2: '#161618', 3: '#1c1c1f', 4: '#242428', 5: '#2c2c31' },
+                            accent: { DEFAULT: '#6366f1', light: '#818cf8', dim: '#4f46e5' },
+                            muted: '#71717a',
+                        }
+                    }
+                }
+            }
+        </script>
+        <script src="https://cdn.fluidplayer.com/v3/current/fluidplayer.min.js"></script>
+        <title>{% if title %}{{title}}{% else %}Tindex{% endif %}</title>
+        <style>
+            body { background: #0d0d0d; }
+            ::-webkit-scrollbar { width: 6px; }
+            ::-webkit-scrollbar-track { background: transparent; }
+            ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+            ::-webkit-scrollbar-thumb:hover { background: #555; }
+        </style>
+    </head>
+    <body class="text-zinc-200 min-h-screen">
+
+        <!-- Thin sticky nav -->
+        <nav class="sticky top-0 z-50 h-11 flex items-center justify-between px-4 bg-surface-2/80 backdrop-blur-md border-b border-white/5">
+            <a href="/" class="flex items-center hover:opacity-80 transition-opacity"><img src="https://see.fontimg.com/api/rf5/m2m39/ZmE3NTQ2MGE3OGUwNDJmYmFkMWEyMmRmMzljYTM5ZmQudHRm/VElOREVY/nextf-games-extra-bold-italic.png?r=fs&h=98&w=1500&fg=FFF5F5&bg=FFFFFF&tb=1&s=65" alt="Tindex" class="h-5"></a>
+            <div class="flex items-center gap-3 text-xs">
+                {% if otg is defined and otg %}
+                <a href="/otg" class="text-muted hover:text-zinc-300 transition-colors">OTG</a>
+                {% endif %}
+                <a href="/pc" class="text-muted hover:text-zinc-300 transition-colors">Playlists</a>
+            </div>
+        </nav>
+
+        <main class="max-w-[1600px] mx-auto px-3 pb-8">

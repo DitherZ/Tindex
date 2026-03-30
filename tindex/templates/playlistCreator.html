@@ -1,0 +1,91 @@
+{% include 'header.html' %}
+
+    <div class="max-w-sm mx-auto mt-10">
+        <div class="bg-surface-3 rounded-lg border border-white/5 p-5 space-y-4">
+            <h2 class="text-sm font-medium text-zinc-300">Playlist Creator</h2>
+            <p class="text-[11px] text-zinc-600">Generate an M3U8 playlist for VLC from sequential message IDs.</p>
+
+            {% if error %}
+            <div id="alert" class="bg-red-500/10 border border-red-500/20 text-red-400 text-xs px-3 py-2 rounded">{{error}}</div>
+            <script>setTimeout(()=>document.getElementById('alert').remove(),5000)</script>
+            {% endif %}
+
+            <form id="pf" action="javascript:" onsubmit="gen(this)" class="space-y-3">
+                <div>
+                    <label class="text-[10px] text-zinc-600 uppercase tracking-wider">Index host</label>
+                    <input id="f-host" class="mt-1 w-full bg-surface-2 border border-white/5 rounded px-3 py-1.5 text-xs text-zinc-300 outline-none focus:border-accent/30" type="text" required>
+                </div>
+                <div>
+                    <label class="text-[10px] text-zinc-600 uppercase tracking-wider">Alias</label>
+                    <input id="f-alias" class="mt-1 w-full bg-surface-2 border border-white/5 rounded px-3 py-1.5 text-xs text-zinc-300 outline-none focus:border-accent/30" type="text" required>
+                </div>
+                <div>
+                    <label class="text-[10px] text-zinc-600 uppercase tracking-wider">Playlist name</label>
+                    <input id="f-name" class="mt-1 w-full bg-surface-2 border border-white/5 rounded px-3 py-1.5 text-xs text-zinc-300 placeholder-zinc-700 outline-none focus:border-accent/30" type="text" placeholder="My Playlist" required>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-[10px] text-zinc-600 uppercase tracking-wider">First msg ID</label>
+                        <input id="f-start" class="mt-1 w-full bg-surface-2 border border-white/5 rounded px-3 py-1.5 text-xs text-zinc-300 outline-none focus:border-accent/30" type="number" min="1" required>
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-zinc-600 uppercase tracking-wider"># of clips</label>
+                        <input id="f-count" class="mt-1 w-full bg-surface-2 border border-white/5 rounded px-3 py-1.5 text-xs text-zinc-300 outline-none focus:border-accent/30" type="number" min="1" value="10" required>
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-accent hover:bg-accent-dim text-white text-xs font-medium py-2 rounded transition-colors">Generate &amp; Download</button>
+            </form>
+
+            <pre id="pv" class="hidden bg-surface-1 text-green-500/70 text-[10px] p-3 rounded max-h-40 overflow-auto font-mono mt-2"></pre>
+        </div>
+    </div>
+
+    <script>
+    (function(){
+        // Auto-fill host and alias from current page context
+        const h = document.getElementById('f-host');
+        const a = document.getElementById('f-alias');
+        h.value = location.host;
+
+        // Try to grab alias from referrer or a known path
+        const ref = document.referrer;
+        if (ref) {
+            try {
+                const u = new URL(ref);
+                const seg = u.pathname.split('/').filter(Boolean);
+                if (seg.length >= 1 && seg[0] !== 'pc' && seg[0] !== 'otg') {
+                    a.value = seg[0];
+                }
+            } catch(e) {}
+        }
+    })();
+
+    function gen(f) {
+        const host = f.querySelector('#f-host').value.trim().replace(/^https?:\/\//,'').replace(/\/+$/,'');
+        const alias = f.querySelector('#f-alias').value.trim().replace(/^\/+|\/+$/g,'');
+        const name = f.querySelector('#f-name').value.trim();
+        const start = parseInt(f.querySelector('#f-start').value) || 1;
+        const count = parseInt(f.querySelector('#f-count').value) || 1;
+
+        let m3u = '#EXTM3U\n';
+        for (let i = 0; i < count; i++) {
+            const id = start + i;
+            m3u += `#EXTINF:-1,${name} #${i+1}\n`;
+            m3u += `http://${host}/${alias}/${id}/download\n`;
+        }
+
+        // Preview
+        const pv = document.getElementById('pv');
+        pv.textContent = m3u;
+        pv.classList.remove('hidden');
+
+        // Download
+        const blob = new Blob([m3u], {type:'audio/x-mpegurl'});
+        const url = URL.createObjectURL(blob);
+        const dl = document.createElement('a');
+        dl.href = url; dl.download = `${name||'playlist'}.m3u8`; dl.click();
+        URL.revokeObjectURL(url);
+    }
+    </script>
+
+{% include 'footer.html' %}

@@ -1,0 +1,145 @@
+{% include 'header.html' %}
+
+    <!-- Sub-header: channel info + search -->
+    <div class="flex items-center justify-between py-3 mt-1 border-b border-white/5">
+        <div class="flex items-center gap-2.5 min-w-0">
+            <img class="w-8 h-8 rounded-full object-cover ring-1 ring-white/10 flex-shrink-0" src="{{logo}}">
+            <h1 class="text-sm font-medium text-zinc-300 truncate">{{name}}</h1>
+        </div>
+        <form id="search-form" onsubmit="return handleSearch(event)" class="flex-shrink-0 ml-3">
+            <input id="search-input"
+                   class="bg-surface-3 border border-white/5 rounded-md px-3 py-1.5 text-xs text-zinc-300 placeholder-zinc-600 outline-none focus:border-accent/40 transition-colors w-44 lg:w-56"
+                   type="text" name="search"
+                   value="{% if search %}{{search}}{% endif %}"
+                   placeholder="Search...">
+        </form>
+    </div>
+
+    <!-- Grid -->
+    <div id="grid" class="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5"></div>
+
+    <!-- Loader -->
+    <div id="loader" class="flex justify-center py-6 hidden">
+        <div class="flex items-center gap-2 text-zinc-600 text-xs">
+            <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            loading
+        </div>
+    </div>
+    <div id="end-msg" class="text-center text-zinc-700 text-xs py-6 hidden">&mdash; end &mdash;</div>
+
+    <!-- Hover preview -->
+    <div id="preview-overlay" class="fixed pointer-events-none z-50 rounded-md overflow-hidden shadow-2xl ring-1 ring-white/10 hidden" style="width:400px;height:225px;">
+        <video id="preview-video" muted loop preload="none" class="w-full h-full object-cover bg-black"></video>
+    </div>
+
+    <style>
+        .tile { transition: transform .12s ease, box-shadow .12s ease; border: 1px solid rgba(255,255,255,0.04); }
+        .tile:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.6); border-color: rgba(255,255,255,0.08); }
+        .thumb-wrap::after {
+            content:''; position:absolute; bottom:0; left:0; right:0; height:40%;
+            background: linear-gradient(transparent, rgba(0,0,0,.75)); pointer-events:none;
+        }
+    </style>
+
+    <script>
+    (function() {
+        const ALIAS = "{{alias_id}}";
+        const API = `/${ALIAS}/api/messages`;
+        const grid = document.getElementById('grid');
+        const loader = document.getElementById('loader');
+        const endMsg = document.getElementById('end-msg');
+        const pvOverlay = document.getElementById('preview-overlay');
+        const pvVideo = document.getElementById('preview-video');
+
+        let page = 1, loading = false, hasMore = true;
+        let searchQuery = "{{search}}";
+        let initData = {{initial_json|safe}};
+
+        function tile(item) {
+            const el = document.createElement('div');
+            el.className = 'tile rounded-md bg-surface-2 overflow-hidden cursor-pointer flex flex-col';
+
+            if (item.media) {
+                const isVid = item.mime_type && item.mime_type.startsWith('video/');
+                el.innerHTML = `
+                    <div class="thumb-wrap relative w-full" style="padding-bottom:56.25%">
+                        <img src="${item.thumbnail}" alt="" class="absolute inset-0 w-full h-full object-cover" loading="lazy">
+                        <span class="absolute top-1.5 left-1.5 bg-black/60 text-zinc-400 text-[10px] font-mono px-1.5 py-0.5 rounded">#${item.file_id}</span>
+                        <span class="absolute bottom-1.5 right-1.5 bg-black/60 text-zinc-400 text-[10px] px-1.5 py-0.5 rounded">${item.human_size}</span>
+                        ${isVid ? '<div class="absolute inset-0 flex items-center justify-center opacity-60 hover:opacity-90 transition-opacity"><svg class="w-10 h-10 text-white drop-shadow" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>' : ''}
+                    </div>
+                    <div class="px-2.5 py-2 flex items-center justify-between gap-2 min-w-0">
+                        <span class="text-[11px] text-zinc-400 truncate flex-1" title="${item.insight}">${item.insight}</span>
+                        <a href="${item.download}" class="flex-shrink-0 text-[10px] text-accent hover:text-accent-light transition-colors" onclick="event.stopPropagation()" download>DL</a>
+                    </div>`;
+                el.addEventListener('click', () => location.href = item.url);
+
+                if (isVid) {
+                    let ht;
+                    el.addEventListener('mouseenter', () => {
+                        ht = setTimeout(() => {
+                            pvVideo.src = item.download;
+                            pvVideo.load(); pvVideo.play().catch(()=>{});
+                            pvOverlay.classList.remove('hidden');
+                        }, 350);
+                    });
+                    el.addEventListener('mousemove', e => {
+                        pvOverlay.style.left = Math.min(e.clientX+14, innerWidth-416)+'px';
+                        pvOverlay.style.top = Math.max(8, Math.min(e.clientY-110, innerHeight-240))+'px';
+                    });
+                    el.addEventListener('mouseleave', () => {
+                        clearTimeout(ht); pvOverlay.classList.add('hidden');
+                        pvVideo.pause(); pvVideo.removeAttribute('src'); pvVideo.load();
+                    });
+                }
+            } else {
+                el.innerHTML = `
+                    <div class="p-3">
+                        <span class="text-[10px] text-zinc-600 font-mono">#${item.file_id}</span>
+                        <p class="text-xs text-zinc-400 mt-1 break-words line-clamp-3">${item.insight}</p>
+                    </div>`;
+                el.addEventListener('click', () => location.href = item.url);
+            }
+            return el;
+        }
+
+        function render(items) { items.forEach(i => grid.appendChild(tile(i))); }
+
+        async function loadMore() {
+            if (loading || !hasMore) return;
+            loading = true; loader.classList.remove('hidden');
+            try {
+                const p = new URLSearchParams({page: page+1});
+                if (searchQuery) p.set('search', searchQuery);
+                const r = await (await fetch(`${API}?${p}`)).json();
+                if (r.items?.length) { render(r.items); page = r.page; hasMore = r.has_more; }
+                else hasMore = false;
+                if (!hasMore) endMsg.classList.remove('hidden');
+            } catch(e) { console.error(e); }
+            finally { loading = false; loader.classList.add('hidden'); }
+        }
+
+        // Intersection observer for infinite scroll
+        const sentinel = document.createElement('div');
+        sentinel.style.height = '1px';
+        grid.parentNode.insertBefore(sentinel, loader);
+        new IntersectionObserver(e => { if (e[0].isIntersecting) loadMore(); }, {rootMargin:'800px'}).observe(sentinel);
+
+        function handleSearch(e) {
+            e.preventDefault();
+            const q = document.getElementById('search-input').value.trim();
+            const u = new URL(location); q ? u.searchParams.set('search',q) : u.searchParams.delete('search');
+            u.searchParams.delete('page'); location.href = u; return false;
+        }
+        window.handleSearch = handleSearch;
+
+        render(initData);
+        hasMore = {{has_more|tojson}};
+        if (!hasMore && initData.length) endMsg.classList.remove('hidden');
+    })();
+    </script>
+
+{% include 'footer.html' %}

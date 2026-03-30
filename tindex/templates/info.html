@@ -1,0 +1,84 @@
+{% include 'header.html' %}
+
+    <div class="max-w-4xl mx-auto mt-4 space-y-4">
+        {% if found %}
+            {% if media %}
+                <!-- Player area -->
+                <div class="w-full rounded-md overflow-hidden bg-black">
+                    {% if media.image %}
+                        <img class="mx-auto max-h-[85vh] object-contain" src="{{download_url}}" alt="{{name}}">
+                    {% elif media.video %}
+                        <div id="vid-err" class="p-6 text-center text-zinc-500 hidden">
+                            <p class="text-sm">Playback failed</p>
+                            <a href="{{download_url}}" class="inline-block mt-2 text-xs text-accent hover:text-accent-light" download>Download file</a>
+                        </div>
+                        <div id="vid-wrap">
+                            <video id="vid" class="w-full max-h-[85vh]" controls poster="{{thumbnail}}" preload="metadata">
+                                <source src="{{download_url}}" type="{{media.type}}">
+                            </video>
+                        </div>
+                        <script>
+                        (function(){
+                            var v=document.getElementById('vid'), s=v.querySelector('source');
+                            s.addEventListener('error',function(){
+                                document.getElementById('vid-wrap').style.display='none';
+                                document.getElementById('vid-err').style.display='block';
+                            });
+                            if(typeof fluidPlayer==='function'){try{fluidPlayer('vid',{layoutControls:{autoPlay:false,mute:false,allowTheatre:true,playbackRateEnabled:true,fillToContainer:true}});}catch(e){}}
+                        })();
+                        </script>
+                    {% elif media.audio %}
+                        <div class="p-6">
+                            <audio class="w-full" controls preload="metadata">
+                                <source src="{{download_url}}" type="{{media.type}}">
+                            </audio>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Info bar -->
+                <div class="flex items-start justify-between gap-4 px-1">
+                    <div class="min-w-0 flex-1">
+                        <h1 class="text-sm font-medium text-zinc-200 break-all">{{name}}</h1>
+                        <p class="text-[11px] text-zinc-600 mt-0.5">{{human_size}} &middot; {{media.type}}</p>
+                        {% if caption_html %}
+                        <p class="text-xs text-zinc-400 mt-2 break-words">{{caption_html}}</p>
+                        {% endif %}
+                    </div>
+                    <a href="{{download_url}}" download="{{name}}"
+                       class="flex-shrink-0 bg-accent hover:bg-accent-dim text-white text-xs font-medium px-4 py-1.5 rounded-md transition-colors">
+                        Download
+                    </a>
+                </div>
+
+                {% if reply_btns %}
+                <div class="flex flex-wrap gap-1.5 px-1">
+                    {% for row in reply_btns %}{% for btn in row %}
+                    <a href="{{btn.url}}" target="_blank" class="text-[10px] text-zinc-500 hover:text-zinc-300 bg-surface-3 px-2.5 py-1 rounded transition-colors">{{btn.text}}</a>
+                    {% endfor %}{% endfor %}
+                </div>
+                {% endif %}
+
+            {% else %}
+                <!-- Text message -->
+                <div class="bg-surface-3 rounded-md p-5">
+                    <div class="text-sm text-zinc-300 break-words leading-relaxed">{{text_html}}</div>
+                </div>
+                {% if reply_btns %}
+                <div class="flex flex-wrap gap-1.5">
+                    {% for row in reply_btns %}{% for btn in row %}
+                    <a href="{{btn.url}}" target="_blank" class="text-[10px] text-zinc-500 hover:text-zinc-300 bg-surface-3 px-2.5 py-1 rounded transition-colors">{{btn.text}}</a>
+                    {% endfor %}{% endfor %}
+                </div>
+                {% endif %}
+            {% endif %}
+
+        {% else %}
+            <div class="text-center py-16">
+                <p class="text-zinc-500 text-sm">{{reason}}</p>
+                <a href="/" class="inline-block mt-3 text-xs text-accent hover:text-accent-light">Go home</a>
+            </div>
+        {% endif %}
+    </div>
+
+{% include 'footer.html' %}

@@ -1,0 +1,69 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tindex"
+version = "2.0.0"
+description = "Stream media from Telegram chats via web browser and VLC — modernized fork of NEOIR/Tindex"
+readme = "README.md"
+license = {text = "GPL-3.0-or-later"}
+requires-python = ">=3.10,<4"
+authors = [
+    { name = "Blackflame (DitherZ)" },
+]
+keywords = ["telegram", "streaming", "vlc", "media", "index"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Web Environment",
+    "Framework :: AsyncIO",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Communications :: Chat",
+    "Topic :: Multimedia :: Video",
+]
+dependencies = [
+    "aiohttp>=3.9,<4",
+    "aiohttp-jinja2>=1.6,<2",
+    "telethon>=1.36,<2",
+    "Pillow>=10.0,<13",
+    "markupsafe>=2.1",
+    "jinja2>=3.1,<4",
+    "python-dotenv>=1.0,<2",
+]
+
+[project.optional-dependencies]
+fast = ["cryptg>=0.4"]
+dev = [
+    "ruff>=0.4",
+    "mypy>=1.10",
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+]
+
+[project.urls]
+Homepage = "https://github.com/DitherZ/tindex"
+Repository = "https://github.com/DitherZ/tindex"
+Issues = "https://github.com/DitherZ/tindex/issues"
+
+[project.scripts]
+tindex = "tindex.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["tindex*"]
+
+[tool.setuptools.package-data]
+tindex = ["templates/*.html", "static/*"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "A", "SIM"]

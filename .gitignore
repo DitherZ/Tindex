@@ -1,1 +1,37 @@
-app/__pycache__
+# ──── PYTHON ──── #
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+
+# ──── VIRTUAL ENVIRONMENTS ──── #
+venv/
+.venv/
+env/
+
+# ──── IDE ──── #
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ──── ENVIRONMENT / SECRETS ──── #
+.env
+*.session
+
+# ──── OS ──── #
+.DS_Store
+Thumbs.db
+
+# ──── LOGS ──── #
+*.log
+.log/
+
+# ──── TELETHON ──── #
+*.session
+*.session-journal

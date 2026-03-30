@@ -1,0 +1,17 @@
+{% include 'header.html' %}
+
+    <div class="mt-8 mb-4 text-center">
+        <h1 class="text-lg font-medium text-zinc-400">Select a source</h1>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 max-w-3xl mx-auto">
+        {% for chat in chats %}
+        <a href="/{{chat.page_id}}"
+           class="group flex flex-col items-center gap-2 p-4 rounded-lg bg-surface-3 hover:bg-surface-4 border border-white/5 hover:border-accent/30 transition-all">
+            <img src="/{{chat.page_id}}/logo?big=1" class="w-16 h-16 rounded-full object-cover ring-1 ring-white/10 group-hover:ring-accent/40 transition-all">
+            <span class="text-xs text-zinc-400 group-hover:text-zinc-200 text-center truncate w-full transition-colors">{{chat.name}}</span>
+        </a>
+        {% endfor %}
+    </div>
+
+{% include 'footer.html' %}

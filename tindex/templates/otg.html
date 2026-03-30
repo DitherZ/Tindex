@@ -1,0 +1,21 @@
+{% include 'header.html' %}
+
+    <div class="max-w-sm mx-auto mt-10">
+        <div class="bg-surface-3 rounded-lg border border-white/5 p-5 space-y-4">
+            <h2 class="text-sm font-medium text-zinc-300">On-The-Go Indexing</h2>
+            <p class="text-[11px] text-zinc-600">Index any public Telegram channel or group by username.</p>
+
+            {% if error %}
+            <div id="alert" class="bg-red-500/10 border border-red-500/20 text-red-400 text-xs px-3 py-2 rounded">{{error}}</div>
+            <script>setTimeout(()=>document.getElementById('alert').remove(),5000)</script>
+            {% endif %}
+
+            <form action="/otg" method="POST" class="flex gap-2">
+                <input class="flex-1 bg-surface-2 border border-white/5 rounded px-3 py-1.5 text-xs text-zinc-300 placeholder-zinc-700 outline-none focus:border-accent/30"
+                       type="text" name="id" placeholder="Username..." required>
+                <button type="submit" class="bg-accent hover:bg-accent-dim text-white text-xs font-medium px-4 py-1.5 rounded transition-colors">Go</button>
+            </form>
+        </div>
+    </div>
+
+{% include 'footer.html' %}

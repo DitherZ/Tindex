@@ -1,94 +1,133 @@
-# Telegram Index Pro
-**Get your media streaming right from your telegram chat into VLC player and web player. No Downloads to wait for!! Easy to Share !!**
+# Tindex v2
 
-[![Open Source Love](https://img.shields.io/github/issues/Rayanfer32/TgindexPro?style=for-the-badge)](.) [![GPLv3 license](https://img.shields.io/badge/License-GPLv3-orange.svg?style=for-the-badge)](LICENSE) [![GitHub forks](https://img.shields.io/github/forks/Rayanfer32/TgindexPro?style=for-the-badge)]() [![GitHub Stars](https://img.shields.io/github/stars/Rayanfer32/TgindexPro?style=for-the-badge)]() [<img height=28 src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Frayanfer32%2FTgindexPro&count_bg=%23C917A3&title_bg=%231C33B0&icon=ionic.svg&icon_color=%23F5F5F5&title=+T&edge_flat=true">](https://hits.seeyoufarm.com)
+> **Modernized fork of [NEOIR/Tindex](https://github.com/NEOIR/Tindex)** — Stream media from Telegram chats via web browser and VLC player.
 
-## Deploy Now!
-[<img height=50 src="https://repl.it/badge/github/Rayanfer32/TgindexPro">](https://repl.it/github/Rayanfer32/TgindexPro)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue?style=for-the-badge)](https://python.org)
+[![License: GPL v3](https://img.shields.io/badge/license-GPLv3-orange?style=for-the-badge)](LICENSE)
 
-## Highlights
+---
 
-* Create permanent/Static links for your telegram index (No interruptions if deployed on repl.it )
-* Index of a selected channel/chat.
-* Stream/Play media directly in VLC player
-* View messages and media files on the browser.
-* Search through the channel/chat.
-* Download media files through browser/download managers.
+## What's New in v2
 
-## Demo
+| Area | Before (v1) | After (v2) |
+|---|---|---|
+| **Python** | 3.6–3.9 | 3.10–3.13+ |
+| **Packaging** | `requirements.txt` only | `pyproject.toml` (PEP 621) |
+| **Jinja2** | `jinja2.Markup` (removed in 3.1) | `markupsafe.Markup` |
+| **Pillow** | `draw.textsize()` (removed in 10+) | `draw.textbbox()` |
+| **asyncio** | `get_event_loop()` (deprecated) | `asyncio.run()` |
+| **Config** | Raw `os.environ` + committed `.env` | `python-dotenv` + `.env.example` |
+| **Error handling** | Bare `except:` everywhere | Typed `except Exception:` |
+| **Entry point** | `os.system("pip3 install ...")` | Proper `[project.scripts]` |
+| **UI** | Tailwind CSS v1 (light theme) | Tailwind CSS v3 (dark theme) |
+| **Dead code** | `doodstream` dep, `botCode.py` | Removed |
+| **Deployment** | Repl.it only | Docker, pip, manual |
 
-### https://tgindexpro.rayanfer32.repl.co
+---
 
-![website index](img/ui.jpg "website index")
+## Quick Start
 
-## Bonus content
+### 1. Install
 
-![playlist creator](img/playlist_site.PNG "playlist site")
-
-## Deploy Guide
-
-### One Click Deploy (Easy):
-### Step 1:
-> Click here > [![Run on repl.it](https://repl.it/badge/github/Rayanfer32/TgindexPro)](https://repl.it/github/Rayanfer32/TgindexPro)
-
-### Step 2:
-**Environment Variables.**
-![repl secrets sidebar](img/repl-secrets.jpg "playlist site")
-
-
-`Add these Environment Variables (Secrets) in the sidebar`
-
-| Variable Name | Value
-|------------- | -------------
-| `API_ID` (required) | Telegram api_id obtained from https://my.telegram.org/apps.
-| `API_HASH` (required) | Telegram api_hash obtained from https://my.telegram.org/apps.
-| `INDEXING_CHAT` (required) | Chat_ID of the chat you are using for index (add `chat id echo bot` to ur group or channel and make it admin to show chat id) 
-
-### Step 3:
-#### Press `Run` button on top.
-* Enter your phone number only (Bot token is not supported)
-* Enter the recieved OTP
-
-* Now copy the session string to the secrets.
-
-| Variable Name | Value
-|------------- | -------------
-| `SESSION_STRING` (required) | String obtained by running `$ python3 app/generate_session_string.py`. (Login with the telegram account which is a participant of the given channel (or chat).
-
-#### Press `Run` button on top to start the webserver.
-
-### Step 4:
-#### Preventing repl from going offline:
-**Open** [uptimerobot.com](https://uptimerobot.com) **and add your index site under HTTP(s)**
->  This will ping the site every 5 minutes and prevent repl from shutting down.
-
-## Manual Deployment:
-* **Install dependencies.**
 ```bash
- pip3 install -U -r requirements.txt
+# From source
+git clone https://github.com/DitherZ/tindex.git
+cd tindex
+pip install .
+
+# With the optional cryptg accelerator
+pip install ".[fast]"
 ```
 
-* **Environment Variables.**
-`PORT` (optional) | Port on which app should listen to, defaults to 8080.
-`HOST` (optional) | Host name on which app should listen to, defaults to 0.0.0.0. 
-`DEBUG` (optional) | Give some value to set logging level to debug, info by default.
+### 2. Configure
 
-* **Run app.**
 ```bash
-$ python3 -m app
+cp .env.example .env
+# Edit .env with your values
 ```
 
-## API
+You need:
 
-Here's the api description. [API](https://github.com/odysseusmax/tg-index/wiki/API)
+| Variable | Source |
+|---|---|
+| `API_ID` | [my.telegram.org/apps](https://my.telegram.org/apps) |
+| `API_HASH` | [my.telegram.org/apps](https://my.telegram.org/apps) |
+| `INDEXING_CHAT` | Your channel/group chat ID |
+| `SESSION_STRING` | Generate with `python -m tindex.session` |
 
-## Contributions
+### 3. Generate Session String
 
-Contributions are welcome.
+```bash
+python -m tindex.session
+```
+
+Log in with the Telegram account that has access to your target channel/chat.
+
+### 4. Run
+
+```bash
+# Via module
+python -m tindex
+
+# Or via entry point (if pip-installed)
+tindex
+```
+
+Server starts on `http://0.0.0.0:8080` by default.
+
+---
+
+## Docker
+
+```bash
+docker build -t tindex .
+docker run -d --env-file .env -p 8080:8080 tindex
+```
+
+---
+
+## Development
+
+```bash
+pip install ".[dev]"
+ruff check tindex/
+mypy tindex/
+```
+
+---
+
+## Project Structure
+
+```
+tindex/
+├── __init__.py          # Package metadata
+├── __main__.py          # CLI entry point
+├── config.py            # Environment config + validation
+├── main.py              # Indexer server orchestrator
+├── routes.py            # URL routing + chat alias generation
+├── session.py           # Interactive session string generator
+├── telegram.py          # Telethon client with range downloads
+├── util.py              # Filename + size helpers
+├── views.py             # HTTP handlers (index, info, download, etc.)
+└── templates/
+    ├── header.html      # Shared header (Tailwind v3, dark theme)
+    ├── footer.html      # Shared footer
+    ├── home.html        # Source selection page
+    ├── index.html       # Chat message listing with pagination
+    ├── info.html        # File detail + media player
+    ├── otg.html         # On-The-Go indexing form
+    └── playlistCreator.html  # M3U8 playlist generator
+```
+
+---
 
 ## Credits
 
-Orignal Tgindex Developer [@odysseusmax](https://tx.me/odysseusmax).
+- Original **tg-index** by [@odysseusmax](https://github.com/odysseusmax/tg-index)
+- **TgindexPro** fork by [@rayanfer32](https://github.com/rayanfer32/TgindexPro)
+- **Tindex** fork by [@NEOIR](https://github.com/NEOIR/Tindex)
+- **v2 modernization** by Blackflame (DitherZ)
 
 ## License
-Code released under [The GNU General Public License](LICENSE).
+
+[GNU General Public License v3.0](LICENSE)
